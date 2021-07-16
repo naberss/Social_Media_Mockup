@@ -2,6 +2,7 @@ package com.naberss.SocialMediaMockup.controllers;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.naberss.SocialMediaMockup.DTO.UserDTO;
 import com.naberss.SocialMediaMockup.entities.User;
 import com.naberss.SocialMediaMockup.services.UserService;
 
@@ -32,28 +34,39 @@ public class UserController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/findById/{id}")
-	public ResponseEntity<User> findById(@PathVariable(name = "id") String id) {
-		return ResponseEntity.ok().body(userService.findById(id));
+	public ResponseEntity<UserDTO> findById(@PathVariable(name = "id") String id) {
+		UserDTO userDto = new UserDTO(userService.findById(id));
+		return ResponseEntity.ok().body(userDto);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/findByName/{name}")
-	public ResponseEntity<List<User>> findByName(@PathVariable(name = "name") String name) {
-		return ResponseEntity.ok().body(userService.findByName(name));
+	public ResponseEntity<List<UserDTO>> findByName(@PathVariable(name = "name") String name) {
+
+		List<User> users = userService.findByName(name);
+		List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(usersDto);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/findByEmail/{email}")
-	public ResponseEntity<List<User>> findByEmail(@PathVariable(name = "email") String email) {
-		return ResponseEntity.ok().body(userService.findByName(email));
+	public ResponseEntity<List<UserDTO>> findByEmail(@PathVariable(name = "email") String email) {
+
+		List<User> users = userService.findByName(email);
+		List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(usersDto);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/findAll")
-	public ResponseEntity<List<User>> findAll() {
-		return ResponseEntity.ok().body(userService.findAll());
+	public ResponseEntity<List<UserDTO>> findAll() {
+
+		List<User> users = userService.findAll();
+		List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(usersDto);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, path = "/update/{id}")
-	public ResponseEntity<User> update(@PathVariable(name = "id") String id, @RequestBody User user) {
-		return ResponseEntity.accepted().body(userService.Update(id, user));
+	public ResponseEntity<UserDTO> update(@PathVariable(name = "id") String id, @RequestBody User user) {
+		UserDTO userDto = new UserDTO(userService.Update(id, user));
+		return ResponseEntity.accepted().body(userDto);
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, path = "/delete/{id}")
