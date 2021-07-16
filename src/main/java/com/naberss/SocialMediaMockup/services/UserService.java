@@ -1,4 +1,4 @@
-package com.naberss.SocialMediaMockup;
+package com.naberss.SocialMediaMockup.services;
 
 import java.util.ArrayList;
 import java.util.List;

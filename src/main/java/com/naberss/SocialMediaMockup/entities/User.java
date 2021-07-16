@@ -3,9 +3,17 @@ package com.naberss.SocialMediaMockup.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "User")
 public class User implements Serializable {
 
+	@Transient
 	private static final long serialVersionUID = -8405749781344744402L;
+
+	@Id
 	String id;
 	String name;
 	String email;
