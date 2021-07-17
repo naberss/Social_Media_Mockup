@@ -24,10 +24,13 @@ public interface PostRepository extends MongoRepository<Post, String> {
 	@Query(value = "{'author.name': {$regex : ?0, $options: 'i'}}")
 	public List<Post> findbyAuthorName(String name);
 
-	@Query(value = "{ $or:[ {'body': {$regex : ?0, $options: 'i'}}, {'title': {$regex : ?0, $options: 'i'}} ]}")
+	@Query(value = "{ $or:[ {'body': {$regex : ?0, $options: 'i'}}, "
+			     + "{'title': {$regex : ?0, $options: 'i'}} ]},"
+			     + "{'comments.text': {$regex : ?0, $options: 'i'}}")
 	public List<Post> findbyText(String name);
 
-	@Query(value = "{ $and:[ {date:{$gte: ?0 }}, {date:{$lte: ?1 }} ]}")
+	@Query(value = "{ $and:[ {date:{$gte: ?0 }},"
+			     + "{date:{$lte: ?1 }} ]}")
 	public List<Post> findbyDateInterval(Instant DateI, Instant DateF);
 
 }
