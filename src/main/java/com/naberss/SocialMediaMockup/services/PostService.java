@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import com.naberss.SocialMediaMockup.Exceptions.MongoDatabaseViolation;
 import com.naberss.SocialMediaMockup.Exceptions.MongoResourceNotFound;
 import com.naberss.SocialMediaMockup.entities.Post;
+import com.naberss.SocialMediaMockup.entities.User;
 import com.naberss.SocialMediaMockup.repositories.PostRepository;
+import com.naberss.SocialMediaMockup.repositories.UserRepository;
 
 @Service
 public class PostService {
@@ -19,8 +21,17 @@ public class PostService {
 	@Autowired
 	public PostRepository postRepository;
 
+	@Autowired
+	UserRepository userRepository;
+
 	public Post insert(Post post) {
-		return postRepository.insert(post);
+		Post myPost = postRepository.insert(post);
+
+		User user = userRepository.findById(post.getAuthor().getId()).orElse(null);
+		user.getPosts().add(myPost);
+		userRepository.save(user);
+
+		return myPost;
 	}
 
 	public Post findById(String id) {
@@ -62,7 +73,7 @@ public class PostService {
 		}
 
 	}
-	
+
 	public List<Post> findbyBody(String body) {
 		List<Post> posts = new ArrayList<>();
 		posts = postRepository.findbyBody(body);
@@ -74,7 +85,7 @@ public class PostService {
 		}
 
 	}
-	
+
 	public List<Post> findbyTitle(String title) {
 		List<Post> posts = new ArrayList<>();
 		posts = postRepository.findbyTitle(title);
