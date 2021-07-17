@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.naberss.SocialMediaMockup.DTO.UserDTO;
+import com.naberss.SocialMediaMockup.entities.Post;
 import com.naberss.SocialMediaMockup.entities.User;
 import com.naberss.SocialMediaMockup.services.UserService;
 
@@ -61,6 +62,14 @@ public class UserController {
 		List<User> users = userService.findAll();
 		List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
 		return ResponseEntity.ok().body(usersDto);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/{id}/posts")
+	public ResponseEntity<List<Post>> getPosts(@PathVariable(name = "id") String id) {
+
+		User user = userService.findById(id);
+		List<Post> posts = user.getPosts();
+		return ResponseEntity.ok().body(posts);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, path = "/update/{id}")
