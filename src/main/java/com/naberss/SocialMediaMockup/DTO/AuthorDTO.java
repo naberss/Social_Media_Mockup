@@ -1,23 +1,22 @@
 package com.naberss.SocialMediaMockup.DTO;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import com.naberss.SocialMediaMockup.entities.User;
 
-public class UserDTO implements Serializable{
+public class AuthorDTO implements Serializable {
 
-	private static final long serialVersionUID = -6872531064472586865L;
+	private static final long serialVersionUID = -7344957375324017076L;
 	private String id;
 	private String name;
-	private String email;
 
-	public UserDTO() {
+	public AuthorDTO() {
 	}
 
-	public UserDTO(User user) {
+	public AuthorDTO(User user) {
 		this.id = user.getId();
 		this.name = user.getName();
-		this.email = user.getEmail();
 	}
 
 	public String getId() {
@@ -36,12 +35,9 @@ public class UserDTO implements Serializable{
 		this.name = name;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	} 
 
 }

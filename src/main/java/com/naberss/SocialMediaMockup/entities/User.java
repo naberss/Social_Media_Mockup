@@ -14,9 +14,9 @@ public class User implements Serializable {
 	private static final long serialVersionUID = -8405749781344744402L;
 
 	@Id
-	String id;
-	String name;
-	String email;
+	private String id;
+	private String name;
+	private String email;
 
 	public User(String id, String name, String email) {
 		super();
