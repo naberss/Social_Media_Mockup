@@ -33,13 +33,12 @@ public class PostController {
 
 	@RequestMapping(method = RequestMethod.POST, path = "/Insert")
 	public @ResponseBody ResponseEntity<Post> insert(@Param(value = "name") String name,
-			                                         @Param(value = "date") Instant date,  
+			                                         @Param(value = "date") Instant date, 
 			                                         @Param(value = "title") String title,
 			                                         @Param(value = "body") String body, 
 			                                         @Param(value = "authorID") String authorID) {
 
 		User user = userService.findById(authorID);
-
 		Post post = new Post(null, date, title, body, new AuthorDTO(user));
 		postService.insert(post);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(post.getId()).toUri();
@@ -64,21 +63,21 @@ public class PostController {
 		List<Post> posts = postService.findbyAuthorId(id);
 		return ResponseEntity.ok().body(posts);
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, path = "/findbyAuthorName/{name}")
 	public ResponseEntity<List<Post>> findbyAuthorName(@PathVariable(name = "name") String name) {
 
 		List<Post> posts = postService.findbyAuthorName(name);
 		return ResponseEntity.ok().body(posts);
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, path = "/findbyTitle/{title}")
 	public ResponseEntity<List<Post>> findbyTitle(@PathVariable(name = "title") String title) {
 
 		List<Post> posts = postService.findbyTitle(title);
 		return ResponseEntity.ok().body(posts);
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, path = "/findbyBody/{body}")
 	public ResponseEntity<List<Post>> findbyBody(@PathVariable(name = "body") String body) {
 
@@ -89,6 +88,14 @@ public class PostController {
 	@RequestMapping(method = RequestMethod.PUT, path = "/update/{id}")
 	public ResponseEntity<Post> update(@PathVariable(name = "id") String id, @RequestBody Post post) {
 		return ResponseEntity.accepted().body(postService.Update(id, post));
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/addComment/{postID}")
+	public ResponseEntity<Post> addComment(@Param(value = "text") String text,
+			                               @PathVariable(name = "postID") String postID) {
+
+		Post post = postService.addComment(text, postID);
+		return ResponseEntity.ok().body(post);
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, path = "/delete/{id}")

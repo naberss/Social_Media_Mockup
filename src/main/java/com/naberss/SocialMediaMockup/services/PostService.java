@@ -1,5 +1,6 @@
 package com.naberss.SocialMediaMockup.services;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import com.naberss.SocialMediaMockup.DTO.CommentDTO;
 import com.naberss.SocialMediaMockup.Exceptions.MongoDatabaseViolation;
 import com.naberss.SocialMediaMockup.Exceptions.MongoResourceNotFound;
 import com.naberss.SocialMediaMockup.entities.Post;
@@ -113,6 +115,13 @@ public class PostService {
 		oldPost.setBody(newPost.getBody());
 		oldPost.setTitle(newPost.getTitle());
 		oldPost.setDate(newPost.getDate());
+	}
+
+	public Post addComment(String text, String postID) {
+		Post post = findById(postID);
+		post.getComments().add(new CommentDTO(text, Instant.now(), post.getAuthor()));
+		postRepository.save(post);
+		return post;
 	}
 
 	public void delete(String id) {
