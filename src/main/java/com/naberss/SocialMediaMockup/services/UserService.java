@@ -2,7 +2,9 @@ package com.naberss.SocialMediaMockup.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,78 +18,78 @@ import com.naberss.SocialMediaMockup.repositories.UserRepository;
 @Service
 public class UserService {
 
-	@Autowired
-	public UserRepository userRepository;
+    @Autowired
+    public UserRepository userRepository;
 
-	public User insert(User user) {
-		return userRepository.insert(user);
-	}
+    public User insert(User user) {
+        return userRepository.insert(user);
+    }
 
-	public User findById(String id) {
-		return userRepository.findById(id).orElseThrow(() -> new MongoResourceNotFound(id));
-	}
+    public User findById(String id) {
+        return userRepository.findById(id).orElseThrow(() -> new MongoResourceNotFound());
+    }
 
-	public List<User> findByName(String name) {
-		List<User> users = new ArrayList<>();
-		users = userRepository.findbyName(name);
+    public List<User> findByName(String name) {
+        List<User> users = new ArrayList<>();
+        users = userRepository.findbyName(name);
 
-		if (users.size() != 0) {
-			return users;
-		} else {
-			throw new MongoResourceNotFound(name);
-		}
+        if (users.size() != 0) {
+            return users;
+        } else {
+            throw new MongoResourceNotFound(name);
+        }
 
-	}
+    }
 
-	public List<User> findbyEmail(String email) {
-		List<User> users = new ArrayList<>();
-		users = userRepository.findbyEmail(email);
+    public List<User> findbyEmail(String email) {
+        List<User> users = new ArrayList<>();
+        users = userRepository.findbyEmail(email);
 
-		if (users.size() != 0) {
-			return users;
-		} else {
-			throw new MongoResourceNotFound(email);
-		}
+        if (users.size() != 0) {
+            return users;
+        } else {
+            throw new MongoResourceNotFound(email);
+        }
 
-	}
+    }
 
-	public List<User> findAll() {
-		List<User> users = new ArrayList<>();
-		users = userRepository.findAll();
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
+        users = userRepository.findAll();
 
-		if (users.size() != 0) {
-			return users;
-		} else {
-			throw new MongoResourceNotFound();
-		}
+        if (users.size() != 0) {
+            return users;
+        } else {
+            throw new MongoResourceNotFound();
+        }
 
-	}
+    }
 
-	public User Update(String id, User newUser) {
-		try {
-			User user = findById(id);
-			updateData(user, newUser);
-			userRepository.save(user);
-			return user;
-		} catch (NullPointerException e) {
-			throw new MongoResourceNotFound(id);
-		}
-	}
+    public User Update(String id, User newUser) {
+        try {
+            User user = findById(id);
+            updateData(user, newUser);
+            userRepository.save(user);
+            return user;
+        } catch (NullPointerException e) {
+            throw new MongoResourceNotFound(id);
+        }
+    }
 
-	public void updateData(User oldUser, User newUser) {
-		oldUser.setName(newUser.getName());
-		oldUser.setEmail(newUser.getEmail());
-	}
+    public void updateData(@NotNull User oldUser, @NotNull User newUser) {
+        oldUser.setName(newUser.getName());
+        oldUser.setEmail(newUser.getEmail());
+    }
 
-	public void delete(String id) {
-		try {
-			userRepository.deleteById(id);
-		} catch (DataIntegrityViolationException e) {
-			throw new MongoDatabaseViolation();
-		} catch (EmptyResultDataAccessException f) {
-			throw new MongoDatabaseViolation();
-		}
+    public void delete(String id) {
+        try {
+            userRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new MongoDatabaseViolation();
+        } catch (EmptyResultDataAccessException f) {
+            throw new MongoDatabaseViolation();
+        }
 
-	}
+    }
 
 }

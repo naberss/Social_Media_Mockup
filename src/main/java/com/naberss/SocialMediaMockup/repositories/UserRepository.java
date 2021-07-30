@@ -11,10 +11,13 @@ import com.naberss.SocialMediaMockup.entities.User;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
 
+	@Query(value = "{'id': {$regex : ?0, $options: 'i'}}")
+	public User findbyIdAux(String id);
+
 	@Query(value = "{'name': {$regex : ?0, $options: 'i'}}")
 	public List<User> findbyName(String name);
 
-	@Query(value = "{'name': {$regex : ?0, $options: 'i'}}")
+	@Query(value = "{'email': {$regex : ?0, $options: 'i'}}")
 	public List<User> findbyEmail(String email);
 
 }
