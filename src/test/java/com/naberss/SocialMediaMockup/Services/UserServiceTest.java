@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @Tag("Service_Test")
 @ExtendWith(MockitoExtension.class)
@@ -61,9 +62,12 @@ class UserServiceTest {
     @Test
     @DisplayName("User Service -> Find By ID Test")
     void findByIdTest() {
+        assertThrows(MongoResourceNotFound.class,() -> userService.findById(anyString()));
+        Mockito.verify(userRepository, Mockito.atMostOnce()).findById(anyString());
+        //----------------------------------------------------------------------------------------//
         Mockito.when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         assertEquals(Optional.of(user), userRepository.findById(anyString()));
-        Mockito.verify(userRepository, Mockito.atMostOnce()).findById(anyString());
+        Mockito.verify(userRepository, Mockito.times(2)).findById(anyString());
     }
 
     @Test
@@ -90,22 +94,36 @@ class UserServiceTest {
     @Test
     @DisplayName("User Service -> Find By Email Test")
     void findByEmailTest() {
-        assertThrows(MongoResourceNotFound.class, () -> userService.findbyEmail(anyString()));
+        List<User> users = new ArrayList<>();
+        Mockito.when(userRepository.findbyEmail(anyString())).thenReturn(users);
+        assertEquals(users, userRepository.findbyEmail(anyString()));
         Mockito.verify(userRepository, Mockito.times(1)).findbyEmail(anyString());
+        //------------------------------------------------------------------------------------------//
+        assertThrows(MongoResourceNotFound.class, () -> userService.findbyEmail(anyString()));
+        Mockito.verify(userRepository, Mockito.times(2)).findbyEmail(anyString());
     }
 
     @Test
     @DisplayName("User Service -> Find All Test")
     void findByAllTest() {
-        assertThrows(MongoResourceNotFound.class, () -> userService.findAll());
+        List<User> users = new ArrayList<>();
+        Mockito.when(userRepository.findAll()).thenReturn(users);
+        assertEquals(users, userRepository.findAll());
         Mockito.verify(userRepository, Mockito.times(1)).findAll();
+        //----------------------------------------------------------------------------//
+        assertThrows(MongoResourceNotFound.class, () -> userService.findAll());
+        Mockito.verify(userRepository, Mockito.times(2)).findAll();
     }
 
 
     @Test
     @DisplayName("User Service -> Update Test")
     void UpdateTest() {
-        assertThrows(MongoResourceNotFound.class, () -> userService.Update("test", new User()));
+        assertThrows(MongoResourceNotFound.class, () -> userService.Update("test", user));
+        //---------------------------------------------------------------------------------------//
+        Mockito.when(userRepository.save(any(User.class))).thenReturn(user);
+        assertNotNull(userRepository.save(user));
+        verify(userRepository,times(1)).save(user);
     }
 
     @Test
