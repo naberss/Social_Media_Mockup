@@ -40,6 +40,12 @@ public class UserController {
 		return ResponseEntity.ok().body(userDto);
 	}
 
+	@RequestMapping(method = RequestMethod.GET, path = "/findById2/{id}")
+	public ResponseEntity<User> findById2(@PathVariable(name = "id") String id) {
+		User userDto = userService.findById(id);
+		return ResponseEntity.ok().body(userDto);
+	}
+
 	@RequestMapping(method = RequestMethod.GET, path = "/findByName/{name}")
 	public ResponseEntity<List<UserDTO>> findByName(@PathVariable(name = "name") String name) {
 
