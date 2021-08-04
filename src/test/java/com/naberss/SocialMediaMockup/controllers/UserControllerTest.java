@@ -12,8 +12,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Optional;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,20 +32,26 @@ class UserControllerTest {
     @InjectMocks
     UserController userController;
 
-    User user = new User("1", "teste", "teste_email");
-    User user2 = new User("1", "teste", "teste_email");
-    UserDTO userDTO = new UserDTO(user);
+    User user;
+
+    MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
+        user = new User();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
     }
 
     @Test
-    void findById() {
-        ResponseEntity<User> user2 = userController.findById2(Mockito.anyString());
-        System.out.println(user2);
-        /*assertEquals(user, userService.findById(Mockito.anyString()));*/
-
+    void findById() throws Exception {
+        //Mock Test Request
+        mockMvc.perform(get("/users/findById2/1")).andExpect(status()
+                .isOk())
+                .andExpect(mvcResult -> userController.findById2(Mockito.anyString()));
+        //----------------------------------------------------------------//
+        //Mock Test Return
+        ResponseEntity<User> user2 = ResponseEntity.ok().body(user);
+        assertEquals(user2,userController.findById2(Mockito.anyString()));
     }
 }
