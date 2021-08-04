@@ -9,10 +9,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @Tag("Service_Test")
 @ExtendWith(MockitoExtension.class)
@@ -34,8 +32,15 @@ class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    UserService userService2;
+
     @InjectMocks
     UserService userService;
+
+    @Autowired
+    @Spy
+    UserRepository userRepositorySpy;
 
     @BeforeEach
     void setUp() {
@@ -62,7 +67,7 @@ class UserServiceTest {
     @Test
     @DisplayName("User Service -> Find By ID Test")
     void findByIdTest() {
-        assertThrows(MongoResourceNotFound.class,() -> userService.findById(anyString()));
+        assertThrows(MongoResourceNotFound.class, () -> userService.findById(anyString()));
         Mockito.verify(userRepository, Mockito.atMostOnce()).findById(anyString());
         //----------------------------------------------------------------------------------------//
         Mockito.when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
@@ -77,6 +82,12 @@ class UserServiceTest {
         assertEquals(Optional.of(user), userRepository.findById(anyString()));
         then(userRepository).should(times(1)).findById(anyString());
         then(userRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("User Service -> Find By ID - Spy Test")
+    void findByIdSpyTest() {
+        assertNull(userRepositorySpy.findById("2").orElse(null));
     }
 
     @Test
@@ -123,14 +134,21 @@ class UserServiceTest {
         //---------------------------------------------------------------------------------------//
         Mockito.when(userRepository.save(any(User.class))).thenReturn(user);
         assertNotNull(userRepository.save(user));
-        verify(userRepository,times(1)).save(user);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
     @DisplayName("User Service -> Delete Test")
     void deleteTest() {
-        userService.delete("1");
-        Mockito.verify(userRepository, Mockito.atMostOnce()).deleteById("1");
+        userService2.delete("1");
+        Mockito.verify(userService2, Mockito.times(1)).delete("1");
+        //----------------------------------------------------------------//
+        userRepository.deleteById("1");
+        Mockito.verify(userRepository, Mockito.times(1)).deleteById("1");
+
+        InOrder inOrder = Mockito.inOrder(userService2, userRepository);
+        inOrder.verify(userService2).delete("1");
+        inOrder.verify(userRepository).deleteById("1");
     }
 
 }
