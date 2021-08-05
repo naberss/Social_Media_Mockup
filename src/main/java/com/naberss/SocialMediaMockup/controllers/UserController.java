@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,7 +44,7 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.GET, path = "/findById2/{id}")
 	public ResponseEntity<User> findById2(@PathVariable(name = "id") String id) {
 		User userDto = userService.findById(id);
-		return ResponseEntity.ok().body(userDto);
+		return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(userDto);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/findByName/{name}")
