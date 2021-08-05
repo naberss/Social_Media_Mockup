@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,7 +37,7 @@ class UserControllerTest {
 
     User user;
 
-    ResponseEntity<List<UserDTO>> usersDto;
+    List<UserDTO> usersDto;
 
     MockMvc mockMvc;
 
@@ -67,8 +68,8 @@ class UserControllerTest {
         mockMvc.perform(get("/users/findById/1"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findById(Mockito.anyString()));
-        ResponseEntity<UserDTO> userDto = userController.findById(Mockito.anyString());
-        assertEquals(userDto, userController.findById(Mockito.anyString()));
+        UserDTO userDTO = new  UserDTO(userService.findById(Mockito.anyString()));
+        assertEquals(ResponseEntity.ok().body(userDTO),userController.findById(Mockito.anyString()));
     }
 
     @Test
@@ -77,8 +78,8 @@ class UserControllerTest {
         mockMvc.perform(get("/users/findByName/teste"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findByName("teste"));
-        usersDto = userController.findByName(Mockito.anyString());
-        assertEquals(usersDto, userController.findByName(Mockito.anyString()));
+        usersDto = userService.findByName(Mockito.anyString()).stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+        assertEquals(ResponseEntity.ok().body(usersDto),userController.findByName(Mockito.anyString()));
     }
 
     @Test
@@ -87,7 +88,8 @@ class UserControllerTest {
         mockMvc.perform(get("/users/findByEmail/teste"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findByEmail(Mockito.anyString()));
-        usersDto = userController.findByEmail(Mockito.anyString());
+           usersDto = userService.findbyEmail(Mockito.anyString()).stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+           assertEquals(ResponseEntity.ok().body(usersDto),userController.findByEmail(Mockito.anyString()));
     }
 
     @Test
@@ -96,8 +98,10 @@ class UserControllerTest {
         mockMvc.perform(get("/users/findAll"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findAll());
-        usersDto = userController.findAll();
+        usersDto = userService.findAll().stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+        assertEquals(ResponseEntity.ok().body(usersDto), userController.findAll());
     }
+
 
     @Test
     @DisplayName("User Controller - Get Posts Test")
@@ -106,7 +110,7 @@ class UserControllerTest {
         mockMvc.perform(get("/users/1/posts"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.getPosts(Mockito.anyString()));
-        ResponseEntity<List<Post>> posts = new ResponseEntity<List<Post>>(HttpStatus.OK);
-        assertEquals(ResponseEntity.ok().body(posts),userController.getPosts(Mockito.anyString()));
+        List<Post> posts = userService.findById(Mockito.anyString()).getPosts();
+        assertEquals(ResponseEntity.ok().body(posts), userController.getPosts(Mockito.anyString()));
     }
 }

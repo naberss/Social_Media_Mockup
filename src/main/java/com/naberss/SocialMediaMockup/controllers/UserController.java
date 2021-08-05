@@ -24,71 +24,72 @@ import com.naberss.SocialMediaMockup.services.UserService;
 @RequestMapping(value = "/users")
 public class UserController {
 
-	@Autowired
-	UserService userService;
+    @Autowired
+    UserService userService;
 
-	@RequestMapping(method = RequestMethod.POST, path = "/Insert")
-	public @ResponseBody ResponseEntity<User> insert(@RequestBody User user) {
+    @RequestMapping(method = RequestMethod.POST, path = "/Insert")
+    public @ResponseBody
+    ResponseEntity<User> insert(@RequestBody User user) {
 
-		userService.insert(user);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
-		return ResponseEntity.created(uri).body(user);
-	}
+        userService.insert(user);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId()).toUri();
+        return ResponseEntity.created(uri).body(user);
+    }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/findById/{id}")
-	public ResponseEntity<UserDTO> findById(@PathVariable(name = "id") String id) {
-		UserDTO userDto = new UserDTO(userService.findById(id));
-		return ResponseEntity.ok().body(userDto);
-	}
+    @RequestMapping(method = RequestMethod.GET, path = "/findById/{id}")
+    public ResponseEntity<UserDTO> findById(@PathVariable(name = "id") String id) {
+        UserDTO userDto = new UserDTO(userService.findById(id));
+        return ResponseEntity.ok().body(userDto);
+    }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/findById2/{id}")
-	public ResponseEntity<User> findById2(@PathVariable(name = "id") String id) {
-		User userDto = userService.findById(id);
-		return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(userDto);
-	}
+    @RequestMapping(method = RequestMethod.GET, path = "/findById2/{id}")
+    public ResponseEntity<User> findById2(@PathVariable(name = "id") String id) {
+        User userDto = userService.findById(id);
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(userDto);
+    }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/findByName/{name}")
-	public ResponseEntity<List<UserDTO>> findByName(@PathVariable(name = "name") String name) {
+    @RequestMapping(method = RequestMethod.GET, path = "/findByName/{name}")
+    public ResponseEntity<List<UserDTO>> findByName(@PathVariable(name = "name") String name) {
 
-		List<User> users = userService.findByName(name);
-		List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-		return ResponseEntity.ok().body(usersDto);
-	}
+        List<User> users = userService.findByName(name);
+        List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+        return ResponseEntity.ok().body(usersDto);
+    }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/findByEmail/{email}")
-	public ResponseEntity<List<UserDTO>> findByEmail(@PathVariable(name = "email") String email) {
+    @RequestMapping(method = RequestMethod.GET, path = "/findByEmail/{email}")
+    public ResponseEntity<List<UserDTO>> findByEmail(@PathVariable(name = "email") String email) {
 
-		List<User> users = userService.findByName(email);
-		List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-		return ResponseEntity.ok().body(usersDto);
-	}
+        List<User> users = userService.findByName(email);
+        List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+        return ResponseEntity.ok().body(usersDto);
+    }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/findAll")
-	public ResponseEntity<List<UserDTO>> findAll() {
+    @RequestMapping(method = RequestMethod.GET, path = "/findAll")
+    public ResponseEntity<List<UserDTO>> findAll() {
 
-		List<User> users = userService.findAll();
-		List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-		return ResponseEntity.ok().body(usersDto);
-	}
+        List<User> users = userService.findAll();
+        List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+        return ResponseEntity.ok().body(usersDto);
+    }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/{id}/posts")
-	public ResponseEntity<List<Post>> getPosts(@PathVariable(name = "id") String id) {
+    @RequestMapping(method = RequestMethod.GET, path = "/{id}/posts")
+    public ResponseEntity<List<Post>> getPosts(@PathVariable(name = "id") String id) {
 
-		User user = userService.findById(id);
-		List<Post> posts = user.getPosts();
-		return ResponseEntity.ok().body(posts);
-	}
+        User user = userService.findById(id);
+        List<Post> posts = user.getPosts();
+        return ResponseEntity.ok().body(posts);
+    }
 
-	@RequestMapping(method = RequestMethod.PUT, path = "/update/{id}")
-	public ResponseEntity<UserDTO> update(@PathVariable(name = "id") String id, @RequestBody User user) {
-		UserDTO userDto = new UserDTO(userService.Update(id, user));
-		return ResponseEntity.accepted().body(userDto);
-	}
+    @RequestMapping(method = RequestMethod.PUT, path = "/update/{id}")
+    public ResponseEntity<UserDTO> update(@PathVariable(name = "id") String id, @RequestBody User user) {
+        UserDTO userDto = new UserDTO(userService.Update(id, user));
+        return ResponseEntity.accepted().body(userDto);
+    }
 
-	@RequestMapping(method = RequestMethod.DELETE, path = "/delete/{id}")
-	public ResponseEntity<User> update(@PathVariable(name = "id") String id) {
-		userService.delete(id);
-		return ResponseEntity.noContent().build();
-	}
+    @RequestMapping(method = RequestMethod.DELETE, path = "/delete/{id}")
+    public ResponseEntity<User> update(@PathVariable(name = "id") String id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }
