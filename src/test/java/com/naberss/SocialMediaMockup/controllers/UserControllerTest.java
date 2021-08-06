@@ -1,9 +1,9 @@
 package com.naberss.SocialMediaMockup.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naberss.SocialMediaMockup.DTO.UserDTO;
 import com.naberss.SocialMediaMockup.entities.Post;
 import com.naberss.SocialMediaMockup.entities.User;
-import com.naberss.SocialMediaMockup.repositories.UserRepository;
 import com.naberss.SocialMediaMockup.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,9 +14,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,13 +52,28 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User Controller - Insert Test")
+    void Insert() throws Exception {
+        //Mock Controller Request
+        String requestJson = new ObjectMapper().writer().writeValueAsString(user);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        mockMvc.perform(post("/users/Insert")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(result -> userController.insert(user));
+        //URI uri = ServletUriComponentsBuilder.fromRequestUri(request).path("/{id}").buildAndExpand(user.getId()).toUri();
+    }
+
+    @Test
     @DisplayName("User Controller - Find By ID (2) Test")
     void findById2() throws Exception {
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
         //Mock Controller Request
-        mockMvc.perform(get("/users/findById2/1")).andExpect(status()
+        mockMvc.perform(get("/users/findById2/1"))
+                        .andExpect(status()
                         .isIAmATeapot())
-                .andExpect(result -> userController.findById2(Mockito.anyString()));
+                        .andExpect(result -> userController.findById2(Mockito.anyString()));
         //----------------------------------------------------------------//
         //Mock Controller Return
         ResponseEntity<User> user2 = ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(user);
