@@ -18,14 +18,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,15 +56,15 @@ class UserControllerTest {
     @Test
     @DisplayName("User Controller - Insert Test")
     void Insert() throws Exception {
-        //Mock Controller Request
-        String requestJson = new ObjectMapper().writer().writeValueAsString(user);
+        // Mock Servlet Context
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        mockMvc.perform(post("/users/Insert")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestJson))
-                .andExpect(result -> userController.insert(user));
-        //URI uri = ServletUriComponentsBuilder.fromRequestUri(request).path("/{id}").buildAndExpand(user.getId()).toUri();
+        //Mock Controller Request
+        String param = new ObjectMapper().writer().writeValueAsString(user);
+        mockMvc.perform(MockMvcRequestBuilders.post("/users/Insert").contentType(MediaType.APPLICATION_JSON).content(param))
+                .andExpect(Result -> userController.insert(user));
+        URI uri = ServletUriComponentsBuilder.fromRequestUri(request).path("/{id}").buildAndExpand(user.getId()).toUri();
+        assertEquals(ResponseEntity.created(uri).body(user), userController.insert(user));
     }
 
     @Test
@@ -70,10 +72,10 @@ class UserControllerTest {
     void findById2() throws Exception {
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
         //Mock Controller Request
-        mockMvc.perform(get("/users/findById2/1"))
-                        .andExpect(status()
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/findById2/{id}","1"))
+                .andExpect(status()
                         .isIAmATeapot())
-                        .andExpect(result -> userController.findById2(Mockito.anyString()));
+                .andExpect(result -> userController.findById2(Mockito.anyString()));
         //----------------------------------------------------------------//
         //Mock Controller Return
         ResponseEntity<User> user2 = ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(user);
@@ -84,52 +86,71 @@ class UserControllerTest {
     @DisplayName("User Controller - Find By ID Test")
     void FindById() throws Exception {
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
-        mockMvc.perform(get("/users/findById/1"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/findById/{id}","1"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findById(Mockito.anyString()));
-        UserDTO userDTO = new  UserDTO(userService.findById(Mockito.anyString()));
-        assertEquals(ResponseEntity.ok().body(userDTO),userController.findById(Mockito.anyString()));
+        UserDTO userDTO = new UserDTO(userService.findById(Mockito.anyString()));
+        assertEquals(ResponseEntity.ok().body(userDTO), userController.findById(Mockito.anyString()));
     }
 
     @Test
     @DisplayName("User Controller - Find By Name Test")
     void FindByName() throws Exception {
-        mockMvc.perform(get("/users/findByName/teste"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/findByName/{name}","teste"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findByName("teste"));
         usersDto = userService.findByName(Mockito.anyString()).stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-        assertEquals(ResponseEntity.ok().body(usersDto),userController.findByName(Mockito.anyString()));
+        assertEquals(ResponseEntity.ok().body(usersDto), userController.findByName(Mockito.anyString()));
     }
 
     @Test
     @DisplayName("User Controller - Find By Email Test")
     void FindByEmail() throws Exception {
-        mockMvc.perform(get("/users/findByEmail/teste"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/findByEmail/{email}","teste"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findByEmail(Mockito.anyString()));
-           usersDto = userService.findbyEmail(Mockito.anyString()).stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-           assertEquals(ResponseEntity.ok().body(usersDto),userController.findByEmail(Mockito.anyString()));
+        usersDto = userService.findbyEmail(Mockito.anyString()).stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+        assertEquals(ResponseEntity.ok().body(usersDto), userController.findByEmail(Mockito.anyString()));
     }
 
     @Test
     @DisplayName("User Controller - Find All Test")
     void FindAll() throws Exception {
-        mockMvc.perform(get("/users/findAll"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/findAll"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.findAll());
         usersDto = userService.findAll().stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
         assertEquals(ResponseEntity.ok().body(usersDto), userController.findAll());
     }
 
-
     @Test
     @DisplayName("User Controller - Get Posts Test")
     void getPosts() throws Exception {
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
-        mockMvc.perform(get("/users/1/posts"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/{id}/posts","1"))
                 .andExpect(status().isOk())
                 .andExpect(result -> userController.getPosts(Mockito.anyString()));
         List<Post> posts = userService.findById(Mockito.anyString()).getPosts();
         assertEquals(ResponseEntity.ok().body(posts), userController.getPosts(Mockito.anyString()));
+    }
+
+    @Test
+    @DisplayName("User Controller - Update Test")
+    void update() throws Exception {
+        Mockito.when(userService.Update("1",user)).thenReturn(user);
+        String param = new ObjectMapper().writer().writeValueAsString(user);
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/update/{id}","1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(param))
+                .andExpect(status().isAccepted())
+                .andExpect(Result -> userController.update("1", user));
+    }
+
+    @Test
+    @DisplayName("User Controller - Delete Test")
+    void delete() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/users/delete/{id}","1"))
+                .andExpect(status().isNoContent())
+                .andExpect(Result -> userController.delete(Mockito.anyString()));
     }
 }

@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +19,6 @@ import com.naberss.SocialMediaMockup.DTO.UserDTO;
 import com.naberss.SocialMediaMockup.entities.Post;
 import com.naberss.SocialMediaMockup.entities.User;
 import com.naberss.SocialMediaMockup.services.UserService;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -90,7 +87,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "/delete/{id}")
-    public ResponseEntity<User> update(@PathVariable(name = "id") String id) {
+    public ResponseEntity<User> delete(@PathVariable(name = "id") String id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
