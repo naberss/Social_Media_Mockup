@@ -71,11 +71,6 @@ public class Post implements Serializable {
 		this.id = id;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
-
 	public AuthorDTO getAuthor() {
 		return author;
 	}
@@ -89,15 +84,15 @@ public class Post implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Post other = (Post) obj;
-		return Objects.equals(id, other.id);
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Post post = (Post) o;
+		return Objects.equals(getId(), post.getId());
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(getId());
+	}
 }

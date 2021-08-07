@@ -7,6 +7,7 @@ import com.naberss.SocialMediaMockup.entities.User;
 import com.naberss.SocialMediaMockup.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("Controller_Test")
 @ExtendWith(MockitoExtension.class)
+@DisplayName("User Controller - Tests")
 class UserControllerTest {
 
     @Mock
@@ -144,6 +147,8 @@ class UserControllerTest {
                         .content(param))
                 .andExpect(status().isAccepted())
                 .andExpect(Result -> userController.update("1", user));
+        UserDTO userDTO = new UserDTO(user);
+        assertEquals(ResponseEntity.accepted().body(userDTO),userController.update("1", user));
     }
 
     @Test

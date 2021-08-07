@@ -117,7 +117,7 @@ public class PostService {
 		oldPost.setDate(newPost.getDate());
 	}
 
-	public Post addComment(String text, String postID) {
+	public Post addComment(String postID,String text) {
 		Post post = findById(postID);
 		post.getComments().add(new CommentDTO(text, Instant.now(), post.getAuthor()));
 		postRepository.save(post);

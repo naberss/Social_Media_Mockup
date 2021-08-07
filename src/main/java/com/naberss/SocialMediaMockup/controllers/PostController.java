@@ -87,19 +87,17 @@ public class PostController {
 
 	@RequestMapping(method = RequestMethod.PUT, path = "/update/{id}")
 	public ResponseEntity<Post> update(@PathVariable(name = "id") String id, @RequestBody Post post) {
-		return ResponseEntity.accepted().body(postService.Update(id, post));
+		post = postService.Update(id, post);
+		return ResponseEntity.accepted().body(post);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, path = "/addComment/{postID}")
-	public ResponseEntity<Post> addComment(@Param(value = "text") String text,
-			                               @PathVariable(name = "postID") String postID) {
-
-		Post post = postService.addComment(text, postID);
-		return ResponseEntity.ok().body(post);
+	public ResponseEntity<Post> addComment(@PathVariable(name = "postID") String postID,@Param(value = "text") String text) {
+		return ResponseEntity.ok().body(postService.addComment(postID,text));
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, path = "/delete/{id}")
-	public ResponseEntity<Post> update(@PathVariable(name = "id") String id) {
+	public ResponseEntity<Post> delete(@PathVariable(name = "id") String id) {
 		postService.delete(id);
 		return ResponseEntity.noContent().build();
 	}
