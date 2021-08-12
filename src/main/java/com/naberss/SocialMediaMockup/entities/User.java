@@ -10,10 +10,6 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 @Document(collection = "User")
 public class User implements Serializable {
 
@@ -23,9 +19,6 @@ public class User implements Serializable {
 	@Id
 	private String id;
 
-	/*@NotNull
-	@Min(1)
-	@Max(1)*/
 	private String name;
 	private String email;
 	  
