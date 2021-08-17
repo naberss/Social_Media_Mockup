@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Tag("Controller_Test")
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Post Controller - Tests")
-class PostControllerTest {
+class PostController_Test {
 
     Post post;
 

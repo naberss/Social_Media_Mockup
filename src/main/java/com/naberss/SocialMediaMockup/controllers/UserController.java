@@ -59,7 +59,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, path = "/findByEmail/{email}")
     public ResponseEntity<List<UserDTO>> findByEmail(@PathVariable(name = "email") String email) {
 
-        List<User> users = userService.findByName(email);
+        List<User> users = userService.findbyEmail(email);
         List<UserDTO> usersDto = users.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
         return ResponseEntity.ok().body(usersDto);
     }

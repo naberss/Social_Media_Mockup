@@ -5,6 +5,7 @@ import com.naberss.SocialMediaMockup.DTO.UserDTO;
 import com.naberss.SocialMediaMockup.entities.Post;
 import com.naberss.SocialMediaMockup.entities.User;
 import com.naberss.SocialMediaMockup.services.UserService;
+import org.apache.coyote.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -29,6 +30,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.constraints.Max;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,13 +46,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("Controller_Test")
 @WebMvcTest(UserController.class)
 @DisplayName("User Controller - Tests")
-class UserControllerTest {
+class UserController_Test {
 
     @MockBean
-    UserService userService;
-
-   /* @MockBean
-    UserController userController;*/
+    UserController userController;
 
     User user;
 
@@ -61,10 +60,10 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        user = new User();
+        user = new User("1", "teste", "teste@hotmail.com");
     }
 
-    @Test
+    /*@Test
     @DisplayName("User Controller - JsonPath")
     void jsonPathTest() throws Exception {
         User myTestUser = new User("1", "lucas", "lucas-berto@hotmail.com");
@@ -87,7 +86,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.posts", hasSize(2)))
                 .andExpect(jsonPath("$.posts[0].title", is("title 1")))
                 .andExpect(jsonPath("$.posts[1].title", is("title 2")));
-    }
+    }*/
 
     @Test
     @DisplayName("User Controller - Insert Test")
@@ -95,100 +94,112 @@ class UserControllerTest {
         // Mock Servlet Context
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        URI uri = ServletUriComponentsBuilder.fromRequestUri(request).path("/{name}").buildAndExpand(user.getId()).toUri();
+        Mockito.when(userController.insert(user)).thenReturn(ResponseEntity.created(uri).body(user));
         //Mock Controller Request
         String param = new ObjectMapper().writer().writeValueAsString(user);
-        System.out.println( mockMvc.perform(MockMvcRequestBuilders.post("/users/Insert").contentType(MediaType.APPLICATION_JSON).content(param))); /*
-                .andExpect(Result -> userController.insert(user));
-        URI uri = ServletUriComponentsBuilder.fromRequestUri(request).path("/{id}").buildAndExpand(user.getId()).toUri();
-        assertEquals(ResponseEntity.created(uri).body(user), userController.insert(user));*/
+        mockMvc.perform(MockMvcRequestBuilders.post("/users/Insert")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(param))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is("1")))
+                .andExpect(jsonPath("$.name", is("teste")))
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
     }
 
-   /* @Test
+    @Test
     @DisplayName("User Controller - Find By ID (2) Test")
     void findById2() throws Exception {
-        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
         //Mock Controller Request
+        Mockito.when(userController.findById2("1")).thenReturn(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(user));
+
         mockMvc.perform(MockMvcRequestBuilders.get("/users/findById2/{id}", "1"))
-                .andExpect(status()
-                        .isIAmATeapot())
-                .andExpect(result -> userController.findById2(Mockito.anyString()));
-        //----------------------------------------------------------------//
-        //Mock Controller Return
-        ResponseEntity<User> user2 = ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(user);
-        assertEquals(user2, userController.findById2(Mockito.anyString()));
+                .andExpect(status().isIAmATeapot())
+                .andExpect(jsonPath("$.id", is("1")))
+                .andExpect(jsonPath("$.name", is("teste")))
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
     }
 
     @Test
     @DisplayName("User Controller - Find By ID Test")
     void FindById() throws Exception {
-        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
+        Mockito.when(userController.findById("1")).thenReturn(ResponseEntity.status(HttpStatus.OK).body(new UserDTO(user)));
         mockMvc.perform(MockMvcRequestBuilders.get("/users/findById/{id}", "1"))
                 .andExpect(status().isOk())
-                .andExpect(result -> userController.findById(Mockito.anyString()));
-        UserDTO userDTO = new UserDTO(userService.findById(Mockito.anyString()));
-        assertEquals(ResponseEntity.ok().body(userDTO), userController.findById(Mockito.anyString()));
+                .andExpect(jsonPath("$.id", is("1")))
+                .andExpect(jsonPath("$.name", is("teste")))
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
     }
 
     @Test
     @DisplayName("User Controller - Find By Name Test")
     void FindByName() throws Exception {
+        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
+        Mockito.when(userController.findByName("teste")).thenReturn(ResponseEntity.ok().body(users));
         mockMvc.perform(MockMvcRequestBuilders.get("/users/findByName/{name}", "teste"))
                 .andExpect(status().isOk())
-                .andExpect(result -> userController.findByName("teste"));
-        usersDto = userService.findByName(Mockito.anyString()).stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-        assertEquals(ResponseEntity.ok().body(usersDto), userController.findByName(Mockito.anyString()));
+                .andExpect(jsonPath("$.[0].id", is("1")))
+                .andExpect(jsonPath("$.[0].name", is("teste")))
+                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")));
     }
 
     @Test
     @DisplayName("User Controller - Find By Email Test")
     void FindByEmail() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/findByEmail/{email}", "teste"))
+        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
+        Mockito.when(userController.findByEmail("teste@hotmail.com")).thenReturn(ResponseEntity.ok().body(users));
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/findByEmail/{email}", "teste@hotmail.com"))
                 .andExpect(status().isOk())
-                .andExpect(result -> userController.findByEmail(Mockito.anyString()));
-        usersDto = userService.findbyEmail(Mockito.anyString()).stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-        assertEquals(ResponseEntity.ok().body(usersDto), userController.findByEmail(Mockito.anyString()));
+                .andExpect(jsonPath("$.[0].id", is("1")))
+                .andExpect(jsonPath("$.[0].name", is("teste")))
+                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")));
     }
 
     @Test
     @DisplayName("User Controller - Find All Test")
     void FindAll() throws Exception {
+        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
+        Mockito.when(userController.findAll()).thenReturn(ResponseEntity.ok().body(users));
         mockMvc.perform(MockMvcRequestBuilders.get("/users/findAll"))
                 .andExpect(status().isOk())
-                .andExpect(result -> userController.findAll());
-        usersDto = userService.findAll().stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-        assertEquals(ResponseEntity.ok().body(usersDto), userController.findAll());
+                .andExpect(jsonPath("$.[0].id", is("1")))
+                .andExpect(jsonPath("$.[0].name", is("teste")))
+                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")));
     }
 
     @Test
     @DisplayName("User Controller - Get Posts Test")
     void getPosts() throws Exception {
-        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
+        List<Post> posts = new ArrayList<>(List.of(new Post("1", null, "test title", "test body")));
+        Mockito.when(userController.getPosts("1")).thenReturn(ResponseEntity.ok().body(posts));
         mockMvc.perform(MockMvcRequestBuilders.get("/users/{id}/posts", "1"))
                 .andExpect(status().isOk())
-                .andExpect(result -> userController.getPosts(Mockito.anyString()));
-        List<Post> posts = userService.findById(Mockito.anyString()).getPosts();
-        assertEquals(ResponseEntity.ok().body(posts), userController.getPosts(Mockito.anyString()));
+                .andExpect(jsonPath("$.[0].id", is("1")))
+                .andExpect(jsonPath("$.[0].title", is("test title")))
+                .andExpect(jsonPath("$.[0].body", is("test body")));
     }
 
     @Test
     @DisplayName("User Controller - Update Test")
     void update() throws Exception {
-        Mockito.when(userService.Update("1", user)).thenReturn(user);
+        Mockito.when(userController.update("1", user)).thenReturn(ResponseEntity.accepted().body(new UserDTO(user)));
         String param = new ObjectMapper().writer().writeValueAsString(user);
         mockMvc.perform(MockMvcRequestBuilders.put("/users/update/{id}", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(param))
                 .andExpect(status().isAccepted())
-                .andExpect(Result -> userController.update("1", user));
-        UserDTO userDTO = new UserDTO(user);
-        assertEquals(ResponseEntity.accepted().body(userDTO), userController.update("1", user));
+                .andExpect(jsonPath("$.id", is("1")))
+                .andExpect(jsonPath("$.name", is("teste")))
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
     }
 
-    @Test
+     @Test
     @DisplayName("User Controller - Delete Test")
     void delete() throws Exception {
+         Mockito.when(userController.delete("1")).thenReturn(ResponseEntity.noContent().build());
         mockMvc.perform(MockMvcRequestBuilders.delete("/users/delete/{id}", "1"))
-                .andExpect(status().isNoContent())
-                .andExpect(Result -> userController.delete(Mockito.anyString()));
-    }*/
+                .andExpect(status().isNoContent());
+    }
 }
