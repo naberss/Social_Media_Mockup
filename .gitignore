@@ -21,3 +21,14 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/target/classes/application.properties
+/target/classes/Postman/Social_Media_Mockup.postman_collection.json
+/target/maven-archiver/pom.properties
+/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+/target/Social_Media_Mockup-0.0.1-SNAPSHOT.jar.original
+/target/surefire-reports/2021-07-19T05-16-33_612-jvmRun1.dump
+/target/surefire-reports/com.naberss.SocialMediaMockup.SocialMediaMockupApplicationTests.txt
+/target/surefire-reports/TEST-com.naberss.SocialMediaMockup.SocialMediaMockupApplicationTests.xml

@@ -1,0 +1,19 @@
+= Social Media Mockup Docs;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+
+`UserControllerTest` makes a call to a very simple service and produces three
+documentation snippets.
+
+Request:
+include::{snippets}/users/Insert-new/http-request.adoc[]
+
+Response:
+include::{snippets}/users/Insert-new/http-response.adoc[]
+
+Response Body
+include::{snippets}/users/Insert-new/response-body.adoc[]
+
+Response Fields
+include::{snippets}

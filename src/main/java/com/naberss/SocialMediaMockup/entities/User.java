@@ -10,6 +10,9 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 @Document(collection = "User")
 public class User implements Serializable {
 
@@ -19,7 +22,12 @@ public class User implements Serializable {
 	@Id
 	private String id;
 
+	@Size(min = 1,max = 35)
+	@NotNull
 	private String name;
+
+	@Size(min = 1,max = 35)
+	@NotNull
 	private String email;
 	  
 	@DBRef(lazy = true)

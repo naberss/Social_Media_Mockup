@@ -4,47 +4,47 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.naberss.SocialMediaMockup.DTO.UserDTO;
 import com.naberss.SocialMediaMockup.entities.Post;
 import com.naberss.SocialMediaMockup.entities.User;
-import com.naberss.SocialMediaMockup.services.UserService;
-import org.apache.coyote.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.constraints.ConstraintDescriptions;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.snippet.Snippet;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.constraints.Max;
 import java.net.URI;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("Controller_Test")
 @WebMvcTest(UserController.class)
+@ExtendWith(RestDocumentationExtension.class)
+@AutoConfigureRestDocs
 @DisplayName("User Controller - Tests")
 class UserController_Test {
 
@@ -99,14 +99,22 @@ class UserController_Test {
         Mockito.when(userController.insert(user)).thenReturn(ResponseEntity.created(uri).body(user));
         //Mock Controller Request
         String param = new ObjectMapper().writer().writeValueAsString(user);
-        mockMvc.perform(MockMvcRequestBuilders.post("/users/Insert")
+
+        ConstrainedFields fields = new ConstrainedFields(User.class);
+
+        mockMvc.perform(RestDocumentationRequestBuilders.post("/users/Insert")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(param))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
-                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
+                .andDo(document("/Insert-new", requestFields(
+                        fields.withPath("id").description("User ID")
+                        , fields.withPath("name").description("User Name")
+                        , fields.withPath("email").description("User Email")
+                        , fields.withPath("posts").ignored())));
     }
 
     @Test
@@ -115,22 +123,28 @@ class UserController_Test {
         //Mock Controller Request
         Mockito.when(userController.findById2("1")).thenReturn(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(user));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/findById2/{id}", "1"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findById2/{id}", "1"))
                 .andExpect(status().isIAmATeapot())
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
-                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
+                .andDo(document("/findById2", pathParameters(parameterWithName("id").description("User ID"))
+                        , responseFields(fieldWithPath("id").description("User ID")
+                                , fieldWithPath("email").description("User Email")
+                                , fieldWithPath("name").description("User Name")
+                                , fieldWithPath("posts").description("User Posts"))));
     }
 
     @Test
     @DisplayName("User Controller - Find By ID Test")
     void FindById() throws Exception {
         Mockito.when(userController.findById("1")).thenReturn(ResponseEntity.status(HttpStatus.OK).body(new UserDTO(user)));
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/findById/{id}", "1"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findById/{id}", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
-                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
+                .andDo(document("/findById", pathParameters(parameterWithName("id").description("User ID"))));
     }
 
     @Test
@@ -138,7 +152,7 @@ class UserController_Test {
     void FindByName() throws Exception {
         List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
         Mockito.when(userController.findByName("teste")).thenReturn(ResponseEntity.ok().body(users));
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/findByName/{name}", "teste"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findByName/{name}", "teste"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].name", is("teste")))
@@ -150,7 +164,7 @@ class UserController_Test {
     void FindByEmail() throws Exception {
         List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
         Mockito.when(userController.findByEmail("teste@hotmail.com")).thenReturn(ResponseEntity.ok().body(users));
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/findByEmail/{email}", "teste@hotmail.com"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findByEmail/{email}", "teste@hotmail.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].name", is("teste")))
@@ -162,7 +176,7 @@ class UserController_Test {
     void FindAll() throws Exception {
         List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
         Mockito.when(userController.findAll()).thenReturn(ResponseEntity.ok().body(users));
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/findAll"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findAll"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].name", is("teste")))
@@ -174,7 +188,7 @@ class UserController_Test {
     void getPosts() throws Exception {
         List<Post> posts = new ArrayList<>(List.of(new Post("1", null, "test title", "test body")));
         Mockito.when(userController.getPosts("1")).thenReturn(ResponseEntity.ok().body(posts));
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/{id}/posts", "1"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{id}/posts", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].title", is("test title")))
@@ -186,7 +200,7 @@ class UserController_Test {
     void update() throws Exception {
         Mockito.when(userController.update("1", user)).thenReturn(ResponseEntity.accepted().body(new UserDTO(user)));
         String param = new ObjectMapper().writer().writeValueAsString(user);
-        mockMvc.perform(MockMvcRequestBuilders.put("/users/update/{id}", "1")
+        mockMvc.perform(RestDocumentationRequestBuilders.put("/users/update/{id}", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(param))
                 .andExpect(status().isAccepted())
@@ -195,11 +209,28 @@ class UserController_Test {
                 .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
     }
 
-     @Test
+    @Test
     @DisplayName("User Controller - Delete Test")
     void delete() throws Exception {
-         Mockito.when(userController.delete("1")).thenReturn(ResponseEntity.noContent().build());
-        mockMvc.perform(MockMvcRequestBuilders.delete("/users/delete/{id}", "1"))
+        Mockito.when(userController.delete("1")).thenReturn(ResponseEntity.noContent().build());
+        mockMvc.perform(RestDocumentationRequestBuilders.delete("/users/delete/{id}", "1"))
                 .andExpect(status().isNoContent());
     }
+
+    private static class ConstrainedFields {
+
+        private final ConstraintDescriptions constraintDescriptions;
+
+        ConstrainedFields(Class<?> input) {
+            this.constraintDescriptions = new ConstraintDescriptions(input);
+        }
+
+        private FieldDescriptor withPath(String path) {
+            return fieldWithPath(path).attributes(key("constraints").value(StringUtils
+                    .collectionToDelimitedString(this.constraintDescriptions
+                            .descriptionsForProperty(path), ". ")));
+        }
+    }
+
+
 }
