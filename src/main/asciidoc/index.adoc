@@ -1,19 +1,54 @@
-= Social Media Mockup Docs;
+= Social Media Mockup Docs
+
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
 
-`UserControllerTest` makes a call to a very simple service and produces three
-documentation snippets.
+=== `_User Controller_`
 
-Request:
-include::{snippets}/users/Insert-new/http-request.adoc[]
+_INSERT ->_
 
-Response:
-include::{snippets}/users/Insert-new/http-response.adoc[]
+`*HTTP Request:*`
+include::{snippets}/users/Insert/http-request.adoc[]
 
-Response Body
-include::{snippets}/users/Insert-new/response-body.adoc[]
+`*Request Fields:*`
+include::{snippets}/users/Insert/request-fields.adoc[]
 
-Response Fields
-include::{snippets}
+`*HTTP Response:*`
+include::{snippets}/users/Insert/http-response.adoc[]
+
+.-----------------------
+FIND BY ID 2 ->
+
+`*HTTP Request:*`
+include::{snippets}/users/findById2/http-request.adoc[]
+
+`*Request Fields:*`
+include::{snippets}/users/findById2/path-parameters.adoc[]
+
+`*HTTP Response Body:*`
+include::{snippets}/users/findById2/response-body.adoc[]
+
+.-----------------------
+FIND BY ID ->
+
+`*HTTP Request:*`
+include::{snippets}/users/findById/http-request.adoc[]
+
+`*Path Parameters:*`
+include::{snippets}/users/findById/path-parameters.adoc[]
+
+`*HTTP Response Body:*`
+include::{snippets}/users/findById/response-body.adoc[]
+
+.-----------------------
+FIND BY NAME ->
+
+`*HTTP Request:*`
+include::{snippets}/users/findByName/{name}/path-parameters.adoc[]
+
+`*Path Parameters:*`
+include::{snippets}/users/findByName/{name}/path-parameters.adoc[]
+
+`*HTTP Response Body:*`
+include::{snippets}/users/findById/response-body.adoc[]

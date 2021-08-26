@@ -22,7 +22,7 @@ import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.constraints.ConstraintDescriptions;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.restdocs.snippet.Snippet;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -55,12 +55,15 @@ class UserController_Test {
 
     List<UserDTO> usersDto;
 
+    ConstrainedFields fields;
+
     @Autowired
     MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         user = new User("1", "teste", "teste@hotmail.com");
+        fields = new ConstrainedFields(User.class);
     }
 
     /*@Test
@@ -98,9 +101,8 @@ class UserController_Test {
         URI uri = ServletUriComponentsBuilder.fromRequestUri(request).path("/{name}").buildAndExpand(user.getId()).toUri();
         Mockito.when(userController.insert(user)).thenReturn(ResponseEntity.created(uri).body(user));
         //Mock Controller Request
-        String param = new ObjectMapper().writer().writeValueAsString(user);
 
-        ConstrainedFields fields = new ConstrainedFields(User.class);
+        String param = new ObjectMapper().writer().writeValueAsString(user);
 
         mockMvc.perform(RestDocumentationRequestBuilders.post("/users/Insert")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -110,11 +112,11 @@ class UserController_Test {
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
                 .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
-                .andDo(document("/Insert-new", requestFields(
+                .andDo(document("/users/Insert", requestFields(
                         fields.withPath("id").description("User ID")
                         , fields.withPath("name").description("User Name")
                         , fields.withPath("email").description("User Email")
-                        , fields.withPath("posts").ignored())));
+                        , fields.withPath("posts").description("User Posts"))));
     }
 
     @Test
@@ -128,11 +130,11 @@ class UserController_Test {
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
                 .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
-                .andDo(document("/findById2", pathParameters(parameterWithName("id").description("User ID"))
-                        , responseFields(fieldWithPath("id").description("User ID")
+                .andDo(document("/users/findById2", pathParameters(parameterWithName("id").description("User ID"))
+                        /*, responseFields(fieldWithPath("id").description("User ID")
                                 , fieldWithPath("email").description("User Email")
                                 , fieldWithPath("name").description("User Name")
-                                , fieldWithPath("posts").description("User Posts"))));
+                                , fieldWithPath("posts").description("User Posts"))*/));
     }
 
     @Test
@@ -144,7 +146,7 @@ class UserController_Test {
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
                 .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
-                .andDo(document("/findById", pathParameters(parameterWithName("id").description("User ID"))));
+                .andDo(document("/users/findById", pathParameters(parameterWithName("id").description("User ID"))));
     }
 
     @Test
@@ -156,7 +158,8 @@ class UserController_Test {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].name", is("teste")))
-                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")));
+                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")))
+                .andDo(document("/users/findByName", pathParameters( parameterWithName("name").description("User Name"))));
     }
 
     @Test
