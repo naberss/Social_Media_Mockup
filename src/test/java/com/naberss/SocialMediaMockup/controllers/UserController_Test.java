@@ -55,15 +55,12 @@ class UserController_Test {
 
     List<UserDTO> usersDto;
 
-    ConstrainedFields fields;
-
     @Autowired
     MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         user = new User("1", "teste", "teste@hotmail.com");
-        fields = new ConstrainedFields(User.class);
     }
 
     /*@Test
@@ -103,6 +100,7 @@ class UserController_Test {
         //Mock Controller Request
 
         String param = new ObjectMapper().writer().writeValueAsString(user);
+        ConstrainedFields fields = new ConstrainedFields(User.class);
 
         mockMvc.perform(RestDocumentationRequestBuilders.post("/users/Insert")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +128,7 @@ class UserController_Test {
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
                 .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
-                .andDo(document("/users/findById2", pathParameters(parameterWithName("id").description("User ID"))
+                .andDo(document("/users/findById2/{id}", pathParameters(parameterWithName("id").description("User ID to find correlated match"))
                         /*, responseFields(fieldWithPath("id").description("User ID")
                                 , fieldWithPath("email").description("User Email")
                                 , fieldWithPath("name").description("User Name")
@@ -146,56 +144,64 @@ class UserController_Test {
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
                 .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
-                .andDo(document("/users/findById", pathParameters(parameterWithName("id").description("User ID"))));
+                .andDo(document("/users/findById/{id}", pathParameters(parameterWithName("id").description("User ID to find correlated match returning UserDto"))));
     }
 
     @Test
     @DisplayName("User Controller - Find By Name Test")
     void FindByName() throws Exception {
-        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
+        User user2 = new User("2", "teste", "testeAux@hotmail.com");
+        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user), new UserDTO(user2)));
         Mockito.when(userController.findByName("teste")).thenReturn(ResponseEntity.ok().body(users));
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findByName/{name}", "teste"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].name", is("teste")))
                 .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")))
-                .andDo(document("/users/findByName", pathParameters( parameterWithName("name").description("User Name"))));
+                .andDo(document("/users/findByName/{name}", pathParameters(parameterWithName("name").description("User Name to find correlated matches"))));
     }
 
     @Test
     @DisplayName("User Controller - Find By Email Test")
     void FindByEmail() throws Exception {
-        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
+        User user2 = new User("2", "teste", "testeAux@hotmail.com");
+        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user), new UserDTO(user2)));
         Mockito.when(userController.findByEmail("teste@hotmail.com")).thenReturn(ResponseEntity.ok().body(users));
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findByEmail/{email}", "teste@hotmail.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].name", is("teste")))
-                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")));
+                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")))
+                .andDo(document("/users/findByEmail/{email}", pathParameters(parameterWithName("email").description("User Email to find correlated matches"))));
     }
 
     @Test
     @DisplayName("User Controller - Find All Test")
     void FindAll() throws Exception {
-        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user)));
+        User user2 = new User("2", "teste", "testeAux@hotmail.com");
+        List<UserDTO> users = new ArrayList<>(List.of(new UserDTO(user),new UserDTO(user2)));
         Mockito.when(userController.findAll()).thenReturn(ResponseEntity.ok().body(users));
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users/findAll"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].name", is("teste")))
-                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")));
+                .andExpect(jsonPath("$.[0].email", is("teste@hotmail.com")))
+                .andDo(document("/users/findAll"));
     }
 
     @Test
     @DisplayName("User Controller - Get Posts Test")
     void getPosts() throws Exception {
-        List<Post> posts = new ArrayList<>(List.of(new Post("1", null, "test title", "test body")));
+        List<Post> posts = new ArrayList<>(List.of(new Post("1", null, "test title", "test body"),
+                                                   new Post("2", null, "test title Aux", "test body Aux")));
+
         Mockito.when(userController.getPosts("1")).thenReturn(ResponseEntity.ok().body(posts));
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{id}/posts", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is("1")))
                 .andExpect(jsonPath("$.[0].title", is("test title")))
-                .andExpect(jsonPath("$.[0].body", is("test body")));
+                .andExpect(jsonPath("$.[0].body", is("test body")))
+                .andDo(document("/users/{id}/posts",pathParameters(parameterWithName("id").description("User ID to find correlated Posts"))));
     }
 
     @Test
@@ -203,13 +209,20 @@ class UserController_Test {
     void update() throws Exception {
         Mockito.when(userController.update("1", user)).thenReturn(ResponseEntity.accepted().body(new UserDTO(user)));
         String param = new ObjectMapper().writer().writeValueAsString(user);
+
+        ConstrainedFields fields = new ConstrainedFields(User.class);
         mockMvc.perform(RestDocumentationRequestBuilders.put("/users/update/{id}", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(param))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.name", is("teste")))
-                .andExpect(jsonPath("$.email", is("teste@hotmail.com")));
+                .andExpect(jsonPath("$.email", is("teste@hotmail.com")))
+                .andDo(document("/users/update/{id}",pathParameters(parameterWithName("id").description("ID to track user")),
+                                                             requestFields(fields.withPath("name").description("User name to be Set"),
+                                                                           fields.withPath("email").description("User email to be Set"),
+                                                                           fields.withPath("id").ignored(),
+                                                                           fields.withPath("posts").ignored() )));
     }
 
     @Test
@@ -217,7 +230,8 @@ class UserController_Test {
     void delete() throws Exception {
         Mockito.when(userController.delete("1")).thenReturn(ResponseEntity.noContent().build());
         mockMvc.perform(RestDocumentationRequestBuilders.delete("/users/delete/{id}", "1"))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andDo(document("/users/delete/{id}",pathParameters(parameterWithName("id").description("User ID to be deleted"))));
     }
 
     private static class ConstrainedFields {

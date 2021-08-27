@@ -21,34 +21,79 @@ include::{snippets}/users/Insert/http-response.adoc[]
 FIND BY ID 2 ->
 
 `*HTTP Request:*`
-include::{snippets}/users/findById2/http-request.adoc[]
+include::{snippets}/users/findById2/{id}/http-request.adoc[]
 
 `*Request Fields:*`
-include::{snippets}/users/findById2/path-parameters.adoc[]
+include::{snippets}/users/findById2/{id}/path-parameters.adoc[]
 
 `*HTTP Response Body:*`
-include::{snippets}/users/findById2/response-body.adoc[]
+include::{snippets}/users/findById2/{id}/response-body.adoc[]
 
 .-----------------------
 FIND BY ID ->
 
 `*HTTP Request:*`
-include::{snippets}/users/findById/http-request.adoc[]
+include::{snippets}/users/findById/{id}/http-request.adoc[]
 
 `*Path Parameters:*`
-include::{snippets}/users/findById/path-parameters.adoc[]
+include::{snippets}/users/findById/{id}/path-parameters.adoc[]
 
 `*HTTP Response Body:*`
-include::{snippets}/users/findById/response-body.adoc[]
+include::{snippets}/users/findById/{id}/response-body.adoc[]
 
 .-----------------------
 FIND BY NAME ->
 
 `*HTTP Request:*`
-include::{snippets}/users/findByName/{name}/path-parameters.adoc[]
+include::{snippets}/users/findByName/{name}/http-request.adoc[]
 
 `*Path Parameters:*`
 include::{snippets}/users/findByName/{name}/path-parameters.adoc[]
 
 `*HTTP Response Body:*`
-include::{snippets}/users/findById/response-body.adoc[]
+include::{snippets}/users/findByName/{name}/http-response.adoc[]
+
+.-----------------------
+FIND BY EMAIL ->
+
+`*HTTP Request:*`
+include::{snippets}/users/findByEmail/{email}/http-request.adoc[]
+
+`*Path Parameters:*`
+include::{snippets}/users/findByEmail/{email}/path-parameters.adoc[]
+
+`*HTTP Response Body:*`
+include::{snippets}/users/findByEmail/{email}/http-response.adoc[]
+
+.-----------------------
+FIND ALL ->
+
+`*HTTP Request:*`
+include::{snippets}/users/findAll/http-request.adoc[]
+
+`*HTTP Response Body:*`
+include::{snippets}/users/findAll/http-response.adoc[]
+
+.-----------------------
+UPDATE ->
+
+`*HTTP Request:*`
+include::{snippets}/users/update/{id}/http-request.adoc[]
+
+`*Path Parameters:*`
+include::{snippets}/users/update/{id}/path-parameters.adoc[]
+
+`*Request Fields:*`
+include::{snippets}/users/update/{id}/request-fields.adoc[]
+
+`*HTTP Response Body:*`
+include::{snippets}/users/update/{id}/http-response.adoc[]
+
+.-----------------------
+DELETE ->
+
+`*HTTP Request:*`
+include::{snippets}/users/delete/{id}/http-request.adoc[]
+
+`*Path Parameters:*`
+include::{snippets}/users/delete/{id}/path-parameters.adoc[]
